@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"ck/configs"
 	"ck/models"
 	"net/http"
 
@@ -29,4 +30,18 @@ func CreateProduct(g *gin.Context) {
 	}
 
 	g.JSON(http.StatusOK, gin.H{"message": product})
+}
+
+func GetProducts(g *gin.Context) {
+
+	var products []models.Products
+
+	configs.DB.Table("products").Find(&products)
+
+	if len(products) == 0 {
+		g.JSON(http.StatusNotFound, gin.H{"message": "no products found"})
+		return
+	}
+
+	g.JSON(http.StatusOK, gin.H{"Products": products})
 }

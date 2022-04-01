@@ -13,7 +13,7 @@ func main() {
 
 	db := configs.NewMySQLDB("root:123456yhN@tcp(127.0.0.1:3306)/picus?parseTime=True&loc=Local")
 
-	err := db.AutoMigrate(&models.User{}, &models.Category{}, &models.Products{})
+	err := db.AutoMigrate(&models.User{}, &models.Category{}, &models.Products{}, &models.Cart{})
 
 	if err != nil {
 		panic(err.Error())
@@ -23,8 +23,12 @@ func main() {
 
 	router.POST("/createUser", controller.CreateUser)
 	router.POST("/login", controller.Login)
+
+	router.Use(middlewares.AuthLogin())
 	router.POST("/addCategory", controller.CreateCategory)
 	router.GET("/categories", controller.GetCategories)
+	router.GET("/products", controller.GetProducts)
+	router.POST("/addToCart", controller.AddProductToCard)
 
 	//* Admin Middleware
 	router.Use(middlewares.AuthJWTAdmin())
