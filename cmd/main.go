@@ -24,15 +24,21 @@ func main() {
 	router.POST("/createUser", controller.CreateUser)
 	router.POST("/login", controller.Login)
 
+	router.POST("/product/:search", controller.SearchProduct)
+
+	//* User Middleware
 	router.Use(middlewares.AuthLogin())
 	router.POST("/addCategory", controller.CreateCategory)
 	router.GET("/categories", controller.GetCategories)
 	router.GET("/products", controller.GetProducts)
+	router.GET("/carts", controller.GetCarts)
 	router.POST("/addToCart", controller.AddProductToCard)
 
 	//* Admin Middleware
 	router.Use(middlewares.AuthJWTAdmin())
 	router.POST("/addproduct", controller.CreateProduct)
+	router.POST("/deleteProduct/:id", controller.DeleteProduct)
+	router.POST("/updateProduct/:id", controller.UpdateProduct)
 
 	router.Run()
 
