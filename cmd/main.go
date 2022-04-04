@@ -33,6 +33,8 @@ func main() {
 	router.GET("/products", controller.GetProducts)
 	router.GET("/carts", controller.GetCarts)
 	router.POST("/addToCart", controller.AddProductToCard)
+	router.POST("/updateCart", controller.UpdateCartsItem)
+	router.POST("/deleteCart", controller.DeleteCartsItem)
 
 	//* Admin Middleware
 	router.Use(middlewares.AuthJWTAdmin())
