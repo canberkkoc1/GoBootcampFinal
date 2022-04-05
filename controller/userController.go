@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func CreateUser(g *gin.Context) {
+func Register(g *gin.Context) {
 
 	var input models.User
 

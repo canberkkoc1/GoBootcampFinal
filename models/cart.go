@@ -13,7 +13,7 @@ import (
 
 type Cart struct {
 	gorm.Model
-	UserID    uint `json:"user_id"`
+	UserID    uint `gorm:"primary_key;auto_increment" json:"user_id"`
 	ProductID uint `json:"product_id"`
 	Quantity  uint `json:"quantity"`
 }

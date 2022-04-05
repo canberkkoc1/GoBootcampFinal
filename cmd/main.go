@@ -21,10 +21,9 @@ func main() {
 
 	var router = gin.Default()
 
-	router.POST("/createUser", controller.CreateUser)
-	router.POST("/login", controller.Login)
-
 	router.POST("/product/:search", controller.SearchProduct)
+	router.POST("/register", controller.Register)
+	router.POST("/login", controller.Login)
 
 	//* User Middleware
 	router.Use(middlewares.AuthLogin())
@@ -33,14 +32,15 @@ func main() {
 	router.GET("/products", controller.GetProducts)
 	router.GET("/carts", controller.GetCarts)
 	router.POST("/addToCart", controller.AddProductToCard)
-	router.POST("/updateCart", controller.UpdateCartsItem)
-	router.POST("/deleteCart", controller.DeleteCartsItem)
+	router.POST("/updateCart/:id", controller.UpdateCartsItem)
+	router.POST("/deleteCart/:id", controller.DeleteCartsItem)
 
 	//* Admin Middleware
 	router.Use(middlewares.AuthJWTAdmin())
 	router.POST("/addproduct", controller.CreateProduct)
 	router.POST("/deleteProduct/:id", controller.DeleteProduct)
 	router.POST("/updateProduct/:id", controller.UpdateProduct)
+	router.POST("/uploadFile", controller.CreateFileCategory)
 
 	router.Run()
 
