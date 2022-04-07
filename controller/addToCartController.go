@@ -19,6 +19,7 @@ func AddProductToCard(g *gin.Context) {
 	var stock uint
 	var quantity uint
 	var cart_id uint
+	var price uint
 
 	if err := g.ShouldBindJSON(&cartProduct); err != nil {
 		g.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -34,6 +35,8 @@ func AddProductToCard(g *gin.Context) {
 	configs.DB.Table("users").Select("id").Where("email = ? ", userEmail).Find(&user_id)
 
 	configs.DB.Table("products").Select("id").Where("id = ?", cartProduct.ProductID).Find(&product_id)
+
+	configs.DB.Table("products").Select("price").Where("id = ?", product_id).Find(&price)
 
 	configs.DB.Table("carts").Select("user_id").Where("product_id = ? ", product_id).Find(&product_user_id)
 
@@ -55,6 +58,10 @@ func AddProductToCard(g *gin.Context) {
 	} else {
 
 		cartProduct.UserID = user_id
+
+		cartProduct.Price = price * cartProduct.Quantity
+		cartProduct.Status = "pending"
+
 		_, err := cartProduct.CreateCart()
 
 		if err != nil {
@@ -82,47 +89,15 @@ func AddProductToCard(g *gin.Context) {
 
 }
 
-//! get all data from product
+func ListCart(g *gin.Context) {
 
-func GetCarts(g *gin.Context) {
-
-	var products []models.Products
-
-	var product_id []int
-
-	var user_id uint
+	var carts []models.Cart
 
 	userEmail := models.GetEmail(g)
 
-	configs.DB.Table("users").Select("id").Where("email = ? ", userEmail).Find(&user_id)
+	configs.DB.Table("carts").Select("*").Joins("JOIN products ON carts.product_id = products.id").Joins("JOIN users ON carts.user_id = users.id").Where("users.email = ? ", userEmail).Find(&carts)
 
-	rows, err := configs.DB.Table("carts").Select("product_id").Where("user_id = ? ", user_id).Rows()
-
-	defer rows.Close()
-
-	if err != nil {
-		g.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	for rows.Next() {
-		configs.DB.ScanRows(rows, &product_id)
-	}
-
-	fmt.Println(product_id)
-
-	if user_id == 0 {
-		g.JSON(http.StatusBadRequest, gin.H{"error": "check productID and stock"})
-		return
-	}
-
-	for _, id := range product_id {
-		fmt.Println(id)
-		configs.DB.Table("products").Where("id = ? ", id).Find(&products)
-
-	}
-
-	g.JSON(http.StatusOK, gin.H{"data": products})
+	g.JSON(http.StatusOK, carts)
 
 }
 
