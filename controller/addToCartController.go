@@ -2,8 +2,8 @@ package controller
 
 import (
 	"ck/configs"
+	"ck/helper"
 	"ck/models"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -41,8 +41,6 @@ func AddProductToCard(g *gin.Context) {
 	configs.DB.Table("carts").Select("user_id").Where("product_id = ? ", product_id).Find(&product_user_id)
 
 	configs.DB.Table("carts").Select("product_İd").Where("product_id = ? ", product_id).Find(&cart_id)
-
-	fmt.Println(user_id)
 
 	if product_id == cart_id && product_user_id == user_id {
 		var quantity uint
@@ -93,7 +91,36 @@ func ListCart(g *gin.Context) {
 
 	var carts []models.Cart
 
+	var user_id uint
+
+	var carts_user_id []int
+
 	userEmail := models.GetEmail(g)
+
+	configs.DB.Table("users").Select("id").Where("email = ? ", userEmail).Find(&user_id)
+
+	if userEmail == "" {
+		g.JSON(http.StatusBadRequest, gin.H{"error": "user not found"})
+		return
+	}
+
+	result, _ := configs.DB.Table("carts").Select("id").Where("user_id = ? ", user_id).Rows()
+
+	defer result.Close()
+
+	for result.Next() {
+		var cart_id int
+		result.Scan(&cart_id)
+		carts_user_id = append(carts_user_id, cart_id)
+
+	}
+
+	idIsTrue := helper.CheckSlice(carts_user_id, int(user_id))
+
+	if idIsTrue == false {
+		g.JSON(http.StatusBadRequest, gin.H{"error": "user not found"})
+		return
+	}
 
 	configs.DB.Table("carts").Select("*").Joins("JOIN products ON carts.product_id = products.id").Joins("JOIN users ON carts.user_id = users.id").Where("users.email = ? ", userEmail).Find(&carts)
 
@@ -150,14 +177,13 @@ func DeleteCartsItem(g *gin.Context) {
 
 }
 
-//! not tested
-
 func UpdateCartsItem(g *gin.Context) {
 
 	var carts models.Cart
 	var user_id uint
 	var cart_user_id []int
 	var product_id uint
+	var price uint
 
 	var stock uint
 
@@ -188,9 +214,6 @@ func UpdateCartsItem(g *gin.Context) {
 	configs.DB.Table("carts").Select("product_id").Where("id = ? ", CartID).Find(&product_id)
 	configs.DB.Table("products").Select("stock").Where("id = ? ", product_id).Find(&stock)
 
-	fmt.Println(stock)
-	fmt.Println(product_id)
-
 	for _, id := range cart_user_id {
 
 		if id == CartID {
@@ -202,7 +225,12 @@ func UpdateCartsItem(g *gin.Context) {
 				g.JSON(http.StatusBadRequest, gin.H{"error": "out of stock"})
 				return
 			}
+			configs.DB.Table("products").Select("price").Where("id = ? ", product_id).Find(&price)
+
+			carts.Price = price * carts.Quantity
+
 			configs.DB.Table("carts").Where("id = ? AND user_id=? ", CartID, user_id).Update("quantity", carts.Quantity)
+			configs.DB.Table("carts").Where("id = ? AND user_id=? ", CartID, user_id).Update("price", carts.Price)
 			configs.DB.Table("products").Where("id = ? ", product_id).Update("stock", stock-carts.Quantity)
 
 			g.JSON(http.StatusOK, gin.H{"message": "Item updated"})

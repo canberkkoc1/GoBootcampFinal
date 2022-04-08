@@ -2,6 +2,7 @@ package controller
 
 import (
 	"ck/configs"
+	"ck/helper"
 	"ck/models"
 	"fmt"
 	"net/http"
@@ -98,6 +99,8 @@ func CancelOrder(g *gin.Context) {
 
 	var date time.Time
 
+	var order_user_id []int
+
 	userEmail := models.GetEmail(g)
 
 	order_id, err := strconv.Atoi(g.Param("id"))
@@ -116,9 +119,25 @@ func CancelOrder(g *gin.Context) {
 
 	configs.DB.Table("orders").Select("created_at").Where("id= ?", order_id).Find(&date)
 
-	fmt.Println(order.Quantity)
-	fmt.Println(user_id)
-	fmt.Println(order_id)
+	result, _ := configs.DB.Table("orders").Select("user_id").Where("id = ?", order_id).Rows()
+
+	defer result.Close()
+
+	for result.Next() {
+
+		configs.DB.ScanRows(result, &order_user_id)
+
+	}
+
+	isUserExist := helper.CheckSlice(order_user_id, int(user_id))
+
+	if !isUserExist {
+
+		g.JSON(http.StatusBadRequest, gin.H{"error": "you are not allowed to cancel this order"})
+
+		return
+
+	}
 
 	if !order.DeletedAt.Time.IsZero() {
 
@@ -130,31 +149,30 @@ func CancelOrder(g *gin.Context) {
 
 	if order.ID == uint(order_id) {
 
-		if date.After(time.Now().AddDate(0, 0, +14)) {
+		t1 := time.Now()
 
-			g.JSON(200, gin.H{"message": "order can not be canceled"})
+		if t1.Sub(date).Hours() > 336 {
+
+			g.JSON(200, gin.H{"message": "order can not be canceled after 14 hours"})
 			return
 
 		} else {
 
-			if order.Status == "canceled" {
+			configs.DB.Table("orders").Where("id = ?", order_id).Update("status", "canceled")
 
-				g.JSON(200, gin.H{"message": "order already canceled"})
-				return
+			configs.DB.Table("orders").Where("id = ?", order_id).Delete(&models.Orders{})
 
-			} else {
+			g.JSON(200, gin.H{"message": "order canceled"})
 
-				configs.DB.Table("orders").Where("id = ?", order_id).Update("status", "canceled")
-
-				configs.DB.Table("orders").Where("id = ?", order_id).Delete(&models.Orders{})
-
-				g.JSON(200, gin.H{"message": "order canceled"})
-
-				return
-
-			}
+			return
 
 		}
+
+	} else {
+
+		g.JSON(http.StatusBadRequest, gin.H{"error": "order not found"})
+
+		return
 
 	}
 

@@ -32,17 +32,18 @@ func main() {
 	router.GET("/products", controller.GetProducts)
 	router.GET("/carts", controller.ListCart)
 	router.POST("/addToCart", controller.AddProductToCard)
-	router.POST("/updateCart/:id", controller.UpdateCartsItem)
-	router.POST("/deleteCart/:id", controller.DeleteCartsItem)
+	router.PATCH("/updateCart/:id", controller.UpdateCartsItem)
+	router.DELETE("/deleteCart/:id", controller.DeleteCartsItem)
 	router.POST("/compeleteOrder", controller.CompleteOrder)
 	router.GET("/listOrder", controller.ListOrder)
 	router.POST("/cancelOrder/:id", controller.CancelOrder)
 
 	//* Admin Middleware
+	//? test burada kaldı
 	router.Use(middlewares.AuthJWTAdmin())
 	router.POST("/addproduct", controller.CreateProduct)
-	router.POST("/deleteProduct/:id", controller.DeleteProduct)
-	router.POST("/updateProduct/:id", controller.UpdateProduct)
+	router.DELETE("/deleteProduct/:id", controller.DeleteProduct)
+	router.PATCH("/updateProduct/:id", controller.UpdateProduct)
 	router.POST("/uploadFile", controller.CreateFileCategory)
 
 	router.Run()

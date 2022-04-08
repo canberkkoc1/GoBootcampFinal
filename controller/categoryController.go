@@ -70,6 +70,8 @@ func CreateCategory(g *gin.Context) {
 
 	var category models.Category
 
+	var product models.Products
+
 	var categoryName string
 
 	if err := g.ShouldBindJSON(&category); err != nil {
@@ -77,10 +79,12 @@ func CreateCategory(g *gin.Context) {
 		return
 	}
 
+	configs.DB.Where("description LIKE ?", "%"+category.Description+"%").Preload("Category").Find(&product)
+
 	categories := models.Category{
 		Name:        category.Name,
 		Description: category.Description,
-		Products:    category.Products,
+		Products:    product.Name,
 	}
 
 	if categories.Name == "" || categories.Description == "" {
@@ -103,12 +107,25 @@ func CreateCategory(g *gin.Context) {
 	g.JSON(http.StatusOK, gin.H{"message": categories})
 }
 
+//!! buraya bak
 func GetCategories(g *gin.Context) {
 
 	var categories []string
 
 	configs.DB.Table("categories").Select("name").Find(&categories)
 
+	//! pagination için kodlar
+
+	/* pageIndex, pageSize := GetPaginationParameterFromRequest(g)
+
+	items, count, _ := helper.GetCategory(pageIndex, pageSize)
+
+	paginationResult := NewFromRequest(g, count)
+
+	paginationResult.Data = items
+
+	g.JSON(http.StatusOK, paginationResult)
+	*/
 	if len(categories) == 0 {
 		g.JSON(http.StatusNotFound, gin.H{"message": "no categories found"})
 		return

@@ -8,9 +8,9 @@ import (
 
 type Category struct {
 	gorm.Model
-	Name        string     `json:"name"`
-	Description string     `json:"description"`
-	Products    []Products `json:"products" gorm:"type:text" gorm:"many2many:product_categories;"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Products    string `json:"products" gorm:"type:text" gorm:"many2many:product_categories;"`
 }
 
 func (c *Category) CreateCategory() (*Category, error) {
