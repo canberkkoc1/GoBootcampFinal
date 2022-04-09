@@ -2,6 +2,7 @@ package controller
 
 import (
 	"ck/configs"
+	"ck/helper"
 	"ck/models"
 	"fmt"
 	"net/http"
@@ -35,17 +36,27 @@ func CreateProduct(g *gin.Context) {
 }
 
 func GetProducts(g *gin.Context) {
+	/*
+		var products []models.Products
 
-	var products []models.Products
+		configs.DB.Table("products").Find(&products)
 
-	configs.DB.Table("products").Find(&products)
+		if len(products) == 0 {
+			g.JSON(http.StatusNotFound, gin.H{"message": "no products found"})
+			return
+		}
+		g.JSON(http.StatusOK, gin.H{"Products": products})
+	*/
+	pageIndex, pageSize := GetPaginationParameterFromRequest(g)
 
-	if len(products) == 0 {
-		g.JSON(http.StatusNotFound, gin.H{"message": "no products found"})
-		return
-	}
+	items, count, _ := helper.GetProductsPage(pageIndex, pageSize)
 
-	g.JSON(http.StatusOK, gin.H{"Products": products})
+	paginationResult := NewFromRequest(g, items, count)
+
+	paginationResult.Data = items
+
+	g.JSON(http.StatusOK, paginationResult)
+
 }
 
 func SearchProduct(g *gin.Context) {

@@ -76,18 +76,28 @@ func CompleteOrder(g *gin.Context) {
 }
 
 func ListOrder(g *gin.Context) {
+	/*
+		var orders []models.Orders
 
-	var orders []models.Orders
+		var user_id uint
 
-	var user_id uint
+		userEmail := models.GetEmail(g)
 
-	userEmail := models.GetEmail(g)
+		configs.DB.Table("users").Select("id").Where("email = ? ", userEmail).Find(&user_id)
 
-	configs.DB.Table("users").Select("id").Where("email = ? ", userEmail).Find(&user_id)
+		configs.DB.Table("orders").Select("*").Where("user_id = ?", user_id).Find(&orders)
 
-	configs.DB.Table("orders").Select("*").Where("user_id = ?", user_id).Find(&orders)
+		g.JSON(200, gin.H{"orders": orders}) */
 
-	g.JSON(200, gin.H{"orders": orders})
+	pageIndex, pageSize := GetPaginationParameterFromRequest(g)
+
+	items, count, _ := helper.GetOrderPagination(pageIndex, pageSize)
+
+	paginationResult := NewFromRequest(g, items, count)
+
+	paginationResult.Data = items
+
+	g.JSON(http.StatusOK, paginationResult)
 
 }
 

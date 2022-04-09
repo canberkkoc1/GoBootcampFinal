@@ -107,30 +107,16 @@ func CreateCategory(g *gin.Context) {
 	g.JSON(http.StatusOK, gin.H{"message": categories})
 }
 
-//!! buraya bak
 func GetCategories(g *gin.Context) {
 
-	var categories []string
-
-	configs.DB.Table("categories").Select("name").Find(&categories)
-
-	//! pagination için kodlar
-
-	/* pageIndex, pageSize := GetPaginationParameterFromRequest(g)
+	pageIndex, pageSize := GetPaginationParameterFromRequest(g)
 
 	items, count, _ := helper.GetCategory(pageIndex, pageSize)
 
-	paginationResult := NewFromRequest(g, count)
+	paginationResult := NewFromRequest(g, items, count)
 
 	paginationResult.Data = items
 
 	g.JSON(http.StatusOK, paginationResult)
-	*/
-	if len(categories) == 0 {
-		g.JSON(http.StatusNotFound, gin.H{"message": "no categories found"})
-		return
-	}
-
-	g.JSON(http.StatusOK, gin.H{"Categoies": categories})
 
 }

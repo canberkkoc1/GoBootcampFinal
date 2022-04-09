@@ -89,7 +89,7 @@ func AddProductToCard(g *gin.Context) {
 
 func ListCart(g *gin.Context) {
 
-	var carts []models.Cart
+	/* var carts []models.Cart
 
 	var user_id uint
 
@@ -123,8 +123,16 @@ func ListCart(g *gin.Context) {
 	}
 
 	configs.DB.Table("carts").Select("*").Joins("JOIN products ON carts.product_id = products.id").Joins("JOIN users ON carts.user_id = users.id").Where("users.email = ? ", userEmail).Find(&carts)
+	*/
+	pageIndex, pageSize := GetPaginationParameterFromRequest(g)
 
-	g.JSON(http.StatusOK, carts)
+	items, count, _ := helper.GetCartsPagination(pageIndex, pageSize)
+
+	paginationResult := NewFromRequest(g, items, count)
+
+	paginationResult.Data = items
+
+	g.JSON(http.StatusOK, paginationResult)
 
 }
 

@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	DefaultPageSize = 10
+	DefaultPageSize = 6
 	MaxPageSize     = 100
 	PageVar         = "page"
 	PageSizeVar     = "pageSize"
@@ -53,10 +53,10 @@ func New(page, pageSize int, total int, data interface{}) *Page {
 	}
 }
 
-func NewFromRequest(c *gin.Context, data interface{}) *Page {
+func NewFromRequest(c *gin.Context, data interface{}, count int) *Page {
 	page, _ := strconv.Atoi(c.Query(PageVar))
 	pageSize, _ := strconv.Atoi(c.Query(PageSizeVar))
-	return New(page, pageSize, 0, data)
+	return New(page, pageSize, count, data)
 }
 
 func GetPaginationParameterFromRequest(c *gin.Context) (int, int) {
@@ -69,22 +69,6 @@ func GetPaginationParameterFromRequest(c *gin.Context) (int, int) {
 		pageSize = MaxPageSize
 	}
 	return page, pageSize
-}
-
-func (p *Page) Offset() int {
-	return (p.Page - 1) * p.PageSize
-}
-
-func (p *Page) Limit() int {
-	return p.PageSize
-}
-
-func (p *Page) HasData() bool {
-	return p.Data != nil
-}
-
-func (p *Page) HasPages() bool {
-	return p.Pages > 1
 }
 
 func (p *Page) BuildLinkHeader(baseUrl string, defaultPageSize int) string {
