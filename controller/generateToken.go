@@ -10,10 +10,15 @@ import (
 
 func GenerateJWT(email, role string) (string, error) {
 
+	// token key from env
+
 	tokenKey := os.Getenv("MY_TOKEN_KEY")
+
+	// create token
 
 	token := jwt.New(jwt.SigningMethodHS256)
 
+	// set claims
 	claims := token.Claims.(jwt.MapClaims)
 
 	claims["authorized"] = true
@@ -22,6 +27,7 @@ func GenerateJWT(email, role string) (string, error) {
 	claims["isLogin"] = false
 	claims["exp"] = time.Now().Add(time.Minute * 15).Unix()
 
+	// generate token
 	tokenString, err := token.SignedString([]byte(tokenKey))
 
 	if err != nil {
@@ -32,6 +38,7 @@ func GenerateJWT(email, role string) (string, error) {
 	return tokenString, nil
 
 }
+
 func GenerateLoginJWT(email, role string) (string, error) {
 
 	tokenKey := os.Getenv("MY_TOKEN_KEY")

@@ -7,6 +7,8 @@ import (
 
 var DB *gorm.DB
 
+// datebase config
+
 func NewMySQLDB(configSting string) *gorm.DB {
 
 	var err error

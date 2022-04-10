@@ -3,7 +3,6 @@ package controller
 import (
 	"ck/configs"
 	"ck/models"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -71,9 +70,6 @@ func Login(g *gin.Context) {
 
 	email := user.Email
 	pass := user.Password
-
-	fmt.Println(email)
-	fmt.Println(pass)
 
 	errDb := configs.DB.Table("users").Where("email = ? AND password = ?", email, pass).Find(&loginUser)
 	configs.DB.Table("users").Select("is_admin").Where("email = ? AND password = ?", email, pass).Find(&checkAdmin)

@@ -11,6 +11,8 @@ import (
 
 func main() {
 
+	// init database
+
 	db := configs.NewMySQLDB("root:123456yhN@tcp(127.0.0.1:3306)/picus?parseTime=True&loc=Local")
 
 	err := db.AutoMigrate(&models.User{}, &models.Category{}, &models.Products{}, &models.Cart{}, &models.Orders{})
@@ -19,7 +21,11 @@ func main() {
 		panic(err.Error())
 	}
 
+	// init router
+
 	var router = gin.Default()
+
+	// init middlewares and routes
 
 	router.POST("/product/:search", controller.SearchProduct)
 	router.POST("/register", controller.Register)
@@ -39,7 +45,7 @@ func main() {
 	router.POST("/cancelOrder/:id", controller.CancelOrder)
 
 	//* Admin Middleware
-	//? test burada kaldı
+
 	router.Use(middlewares.AuthJWTAdmin())
 	router.POST("/addproduct", controller.CreateProduct)
 	router.DELETE("/deleteProduct/:id", controller.DeleteProduct)

@@ -4,7 +4,6 @@ import (
 	"ck/configs"
 	"ck/helper"
 	"ck/models"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -36,17 +35,7 @@ func CreateProduct(g *gin.Context) {
 }
 
 func GetProducts(g *gin.Context) {
-	/*
-		var products []models.Products
 
-		configs.DB.Table("products").Find(&products)
-
-		if len(products) == 0 {
-			g.JSON(http.StatusNotFound, gin.H{"message": "no products found"})
-			return
-		}
-		g.JSON(http.StatusOK, gin.H{"Products": products})
-	*/
 	pageIndex, pageSize := GetPaginationParameterFromRequest(g)
 
 	items, count, _ := helper.GetProductsPage(pageIndex, pageSize)
@@ -82,8 +71,6 @@ func DeleteProduct(g *gin.Context) {
 	var product models.Products
 
 	productID, err := strconv.Atoi(g.Param("id"))
-
-	fmt.Println(productID)
 
 	if err != nil {
 		g.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

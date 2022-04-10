@@ -40,7 +40,7 @@ func AuthJWTAdmin() gin.HandlerFunc {
 					return
 				}
 			} else {
-				c.JSON(http.StatusUnauthorized, gin.H{"error": "you are not admin"})
+				c.JSON(http.StatusUnauthorized, gin.H{"error": "token is not valid"})
 				c.Abort()
 				return
 			}
@@ -86,7 +86,7 @@ func AuthLogin() gin.HandlerFunc {
 					return
 				}
 			} else {
-				c.JSON(http.StatusUnauthorized, gin.H{"error": "you are not login"})
+				c.JSON(http.StatusUnauthorized, gin.H{"error": "token is not valid"})
 				c.Abort()
 				return
 			}

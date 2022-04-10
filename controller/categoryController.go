@@ -1,10 +1,8 @@
 package controller
 
 import (
-	"fmt"
 	"net/http"
 	"path/filepath"
-	"time"
 
 	"ck/configs"
 	"ck/helper"
@@ -13,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// file upload function
 func CreateFileCategory(g *gin.Context) {
 
 	file, err := g.FormFile("uploadFile")
@@ -27,8 +26,6 @@ func CreateFileCategory(g *gin.Context) {
 
 	g.SaveUploadedFile(file, "../helper/"+filepath)
 
-	time.Sleep(time.Second * 1)
-
 	result, err := helper.ReadFile("../helper/" + filepath)
 
 	if err != nil {
@@ -36,8 +33,6 @@ func CreateFileCategory(g *gin.Context) {
 
 		return
 	}
-
-	fmt.Println(len(result))
 
 	var category models.Category
 
@@ -49,10 +44,14 @@ func CreateFileCategory(g *gin.Context) {
 		}
 		configs.DB.Table("categories").Select("name").Where("name = ? ", categories.Name).Find(&category.Name)
 
+		// check if category already exists
+
 		if categories.Name == category.Name {
 			g.JSON(http.StatusBadRequest, gin.H{"error": "category already exists"})
 			return
 		}
+
+		// create category
 
 		_, err = categories.CreateCategory()
 

@@ -22,6 +22,7 @@ type Page struct {
 	Data     interface{} `json:"data"`
 }
 
+// New returns a new paginator.
 func New(page, pageSize int, total int, data interface{}) *Page {
 	if pageSize == 0 {
 		pageSize = DefaultPageSize
@@ -53,12 +54,14 @@ func New(page, pageSize int, total int, data interface{}) *Page {
 	}
 }
 
+// new request with pagination
 func NewFromRequest(c *gin.Context, data interface{}, count int) *Page {
 	page, _ := strconv.Atoi(c.Query(PageVar))
 	pageSize, _ := strconv.Atoi(c.Query(PageSizeVar))
 	return New(page, pageSize, count, data)
 }
 
+// parameter page and pageSize
 func GetPaginationParameterFromRequest(c *gin.Context) (int, int) {
 	page, _ := strconv.Atoi(c.Query(PageVar))
 	pageSize, _ := strconv.Atoi(c.Query(PageSizeVar))
@@ -71,6 +74,7 @@ func GetPaginationParameterFromRequest(c *gin.Context) (int, int) {
 	return page, pageSize
 }
 
+// get pagination links
 func (p *Page) BuildLinkHeader(baseUrl string, defaultPageSize int) string {
 
 	if p.PageSize == 0 {
@@ -99,6 +103,7 @@ func (p *Page) BuildLinkHeader(baseUrl string, defaultPageSize int) string {
 
 }
 
+// create pagination link
 func getLink(baseUrl string, page int, pageSize int) string {
 	return "<" + baseUrl + "?" + PageVar + "=" + strconv.Itoa(page) + "&" + PageSizeVar + "=" + strconv.Itoa(pageSize) + ">; rel=\"next\""
 }
