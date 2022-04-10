@@ -13,7 +13,7 @@ func main() {
 
 	// init database
 
-	db := configs.NewMySQLDB("root:123456yhN@tcp(127.0.0.1:3306)/picus?parseTime=True&loc=Local")
+	db := configs.NewMySQLDB("<rootname>:<password>@tcp(127.0.0.1:<port>)/<dbName>?parseTime=True&loc=Local")
 
 	err := db.AutoMigrate(&models.User{}, &models.Category{}, &models.Products{}, &models.Cart{}, &models.Orders{})
 
